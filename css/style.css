@@ -1,0 +1,220 @@
+:root {
+      --bg-primary: #0a0a0a;
+      --brand-red: #ff0440;
+      --brand-copper: #8a4a3b;
+      --brand-dull-white: #e1d5d5;
+      --brand-teal: #2DD4BF;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #e1d5d5;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Reference Marquee Keyframes from safetyforwomen.org */
+    @keyframes scroll-left {
+      0% { transform: translate(0); }
+      to { transform: translate(-50%); }
+    }
+    .animate-scroll-left {
+      animation: scroll-left 40s linear infinite;
+    }
+
+    @keyframes scroll-right {
+      0% { transform: translate(-50%); }
+      to { transform: translate(0); }
+    }
+    .animate-scroll-right {
+      animation: scroll-right 40s linear infinite;
+    }
+
+    /* Reference Hero Background Pseudo-element */
+    .hero-background-image:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 11;
+      background: radial-gradient(circle at center, rgba(10, 10, 10, 0.35) 0%, rgba(10, 10, 10, 0.92) 90%);
+      opacity: 0.85;
+    }
+
+    .block {
+      display: block;
+      justify-content: center;
+    }
+
+    /* Character-by-character Spring Reveal */
+    @keyframes charSpringIn {
+      0% {
+        opacity: 0;
+        transform: translate(-20px, 12px) scale(0.92);
+      }
+      70% {
+        opacity: 1;
+        transform: translate(2px, -2px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+    }
+    .char-spring {
+      display: inline-block;
+      opacity: 0;
+      animation: charSpringIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Mouse-Tracking Radial Spotlight Card (--x, --y) */
+    .sfw-pill-card {
+      position: relative;
+      border-radius: 40px;
+      background: rgba(114, 75, 75, 0.33);
+      padding: 2px;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+    }
+    @media (min-width: 768px) {
+      .sfw-pill-card {
+        border-radius: 80px;
+      }
+    }
+    .sfw-pill-card:hover {
+      box-shadow: 0 0 50px rgba(255, 4, 64, 0.45);
+      transform: translateY(-3px);
+    }
+    .sfw-pill-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+      background: radial-gradient(800px circle at var(--x, 50%) var(--y, 50%), rgba(255, 4, 64, 0.85), transparent 40%);
+      pointer-events: none;
+    }
+    .sfw-pill-card:hover::before {
+      opacity: 1;
+    }
+    .sfw-pill-inner {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      border-radius: 38px;
+      background: #060606;
+      overflow: hidden;
+      z-index: 1;
+    }
+    @media (min-width: 768px) {
+      .sfw-pill-inner {
+        border-radius: 78px;
+      }
+    }
+    .sfw-pill-inner::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+      background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(255, 4, 64, 0.13), transparent 40%);
+      pointer-events: none;
+    }
+    .sfw-pill-card:hover .sfw-pill-inner::after {
+      opacity: 1;
+    }
+
+    /* Standard Spotlight Card for App Dashboard Panels */
+    .sfw-box-card {
+      position: relative;
+      border-radius: 26px;
+      background: rgba(138, 74, 59, 0.28);
+      padding: 1.5px;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+    }
+    .sfw-box-card:hover {
+      box-shadow: 0 0 35px rgba(255, 4, 64, 0.28);
+      transform: translateY(-3px);
+    }
+    .sfw-box-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: radial-gradient(500px circle at var(--x, 50%) var(--y, 50%), rgba(255, 4, 64, 0.75), transparent 40%);
+      pointer-events: none;
+    }
+    .sfw-box-card:hover::before {
+      opacity: 1;
+    }
+    .sfw-box-inner {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      border-radius: 24.5px;
+      background: #0d0d0d;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .sfw-box-inner::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: radial-gradient(450px circle at var(--x, 50%) var(--y, 50%), rgba(255, 4, 64, 0.10), transparent 45%);
+      pointer-events: none;
+    }
+    .sfw-box-card:hover .sfw-box-inner::after {
+      opacity: 1;
+    }
+
+    /* Touch Ripple Animation */
+    .touch-ripple-wave {
+      position: fixed;
+      border-radius: 9999px;
+      pointer-events: none;
+      z-index: 9999;
+      background: radial-gradient(circle, rgba(255, 4, 64, 0.35) 0%, rgba(255, 4, 64, 0) 70%);
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripplePop 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes ripplePop {
+      to {
+        transform: translate(-50%, -50%) scale(3.8);
+        opacity: 0;
+      }
+    }
+
+    /* Hide scrollbar for clean modals */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Leaflet dark map theme */
+    .leaflet-container {
+      background: #111 !important;
+      font-family: 'Inter', sans-serif !important;
+    }
+    .leaflet-tile-pane {
+      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }

@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nirbhaya — Prevent. Respond. Preserve. Act.</title>
+
+  <!-- Google Fonts: Poppins & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/tailwind-config.js"></script>
+
+  <!-- Leaflet CSS & JS for Screen 11 Safety Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+</head>
+<body class="selection:bg-[#ff0440] selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- TOP GLOBAL NAVIGATION (Landing + Authenticated Switcher)              -->
+  <!-- ===================================================================== -->
+  <header id="globalHeader" class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-[#8a4a3b]/25 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <!-- Brand Logo -->
+      <div onclick="navigateTo('landing')" class="flex items-center gap-3 cursor-pointer group">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden flex-shrink-0 group-hover:scale-105 transition-transform" aria-label="Nirbhaya logo">
+          <img src="images/nirbhaya-logo.jpg" alt="Nirbhaya logo" class="w-full h-full object-contain" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-white">NIRBHAYA</span>
+          </div>
+          <p class="text-[11px] text-[#e1d5d5]/60 hidden sm:block tracking-wider uppercase">Prevent • Respond • Preserve • Act</p>
+        </div>
+      </div>
+
+      <!-- Public Landing Nav Links -->
+      <nav id="publicNavLinks" class="hidden md:flex items-center gap-7 text-sm font-medium text-[#e1d5d5]/80">
+        <a href="#home" onclick="navigateTo('landing')" class="hover:text-[#ff0440] transition-colors">Home</a>
+        <a href="#initiatives" onclick="navigateTo('landing')" class="hover:text-[#ff0440] transition-colors">Safety Pillars</a>
+        <a href="#pledgeSection" onclick="navigateTo('landing')" class="hover:text-[#ff0440] transition-colors">Safety Pledge</a>
+        <button onclick="openAppScreen('safety-map')" class="hover:text-[#2DD4BF] transition-colors flex items-center gap-1.5">
+          <i data-lucide="map-pin" class="w-4 h-4 text-[#2DD4BF]"></i> Area Safety
+        </button>
+      </nav>
+
+      <!-- Authenticated Search & Quick Status (Hidden on Landing) -->
+      <div id="authHeaderControls" class="hidden flex-1 max-w-md mx-4">
+        <div class="relative w-full">
+          <i data-lucide="search" class="w-4 h-4 text-[#e1d5d5]/40 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input id="globalSearchInput" oninput="handleGlobalSearch(this.value)" type="text" placeholder="Search incidents, cases, evidence, or area safety..." class="w-full bg-[#141414] border border-[#8a4a3b]/30 focus:border-[#ff0440] rounded-full pl-10 pr-4 py-2 text-xs sm:text-sm text-white placeholder-[#e1d5d5]/40 focus:outline-none transition-colors" />
+        </div>
+      </div>
+
+      <!-- Right Action Buttons -->
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <!-- Persistent Emergency SOS Button -->
+        <button onclick="requestSOSAccess()" class="relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-display font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-red-600 to-[#ff0440] hover:from-red-700 hover:to-[#d90338] shadow-[0_0_25px_rgba(255,4,64,0.6)] hover:scale-105 active:scale-95 transition-all">
+          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <span>SOS</span>
+        </button>
+
+        <!-- Public CTA: Sign In / Open Platform -->
+        <button id="headerSignInBtn" onclick="navigateTo('login')" class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold border border-[#ff0440] text-[#ff0440] hover:bg-[#ff0440] hover:text-white transition-all duration-300">
+          Sign In
+        </button>
+
+        <!-- Authenticated User Pill -->
+        <div id="headerUserBadge" class="hidden items-center gap-2.5 pl-2 border-l border-white/10">
+          <button onclick="toggleNotificationDrawer()" class="relative p-2 rounded-full bg-white/5 hover:bg-white/10 text-[#e1d5d5] transition-colors" aria-label="Notifications">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#ff0440]"></span>
+          </button>
+          <button onclick="openAppScreen('dashboard')" class="flex items-center gap-2 bg-[#161010] border border-[#8a4a3b]/40 rounded-full py-1 pl-1.5 pr-3 hover:border-[#ff0440] transition-colors">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-[#ff0440] to-[#8a4a3b] flex items-center justify-center text-white font-bold text-xs" id="navUserInitial">A</div>
+            <span id="navUserName" class="text-xs font-semibold text-white hidden sm:inline">User</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- SCREEN 1: LANDING PAGE (Exact safetyforwomen.org Architecture)        -->
+  <!-- ===================================================================== -->
+  <main id="view-landing" class="pt-16 sm:pt-20 bg-brand-dark">
+
+    <!-- HERO SECTION: Sticky Parallax + Crossfading Slideshow + Character Spring -->
+    <section id="home" class="relative h-screen text-center">
+      <div class="sticky top-0 h-screen flex flex-col justify-center items-center overflow-hidden">
+        <!-- Crossfading Slideshow Backgrounds -->
+        <div id="heroSlidesContainer" class="absolute inset-0 z-10">
+          <div class="hero-slide absolute top-0 left-0 w-full h-full hero-background-image transition-opacity duration-1000 ease-in-out"
+               style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1600&q=80'); background-attachment: fixed; background-position: center top; background-repeat: no-repeat; background-size: cover; opacity: 0.65;"></div>
+          <div class="hero-slide absolute top-0 left-0 w-full h-full hero-background-image transition-opacity duration-1000 ease-in-out"
+               style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80'); background-attachment: fixed; background-position: center top; background-repeat: no-repeat; background-size: cover; opacity: 0;"></div>
+          <div class="hero-slide absolute top-0 left-0 w-full h-full hero-background-image transition-opacity duration-1000 ease-in-out"
+               style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80'); background-attachment: fixed; background-position: center top; background-repeat: no-repeat; background-size: cover; opacity: 0;"></div>
+        </div>
+
+        <!-- Subtle Ambient Smoke/Glow Layer -->
+        <div class="absolute inset-0 z-20 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(255,4,64,0.18),transparent_60%),linear-gradient(to_bottom,rgba(10,10,10,0.3),#0a0a0a_96%)]"></div>
+
+        <!-- Parallax Hero Content -->
+        <div id="heroParallaxBox" class="relative z-30 container mx-auto px-4 sm:px-6 lg:px-8 text-center transition-transform duration-150 ease-out">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#8a4a3b]/25 border border-[#8a4a3b]/40 text-[#e1d5d5] text-xs font-semibold uppercase tracking-[0.2em] mb-4">
+            <span class="w-2 h-2 rounded-full bg-[#2DD4BF]"></span>
+            Intelligent Women’s Safety & Incident Response
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl md:text-7xl xl:text-8xl font-extrabold text-white leading-none">
+            <div id="heroSpringTagline" class="block font-semibold text-xs sm:text-lg md:text-2xl uppercase tracking-[0.15em] md:tracking-[0.45em] text-[#e1d5d5] mb-3"></div>
+            <div id="heroSpringMain1" class="block text-brand-red drop-shadow-[0_0_30px_rgba(255,4,64,0.35)]"></div>
+            <div id="heroSpringMain2" class="block text-white mt-1"></div>
+          </h1>
+
+          <div class="mt-5 max-w-3xl mx-auto text-base md:text-xl text-brand-dull-white">
+            <div class="flex flex-col gap-2 text-center">
+              <p class="text-lg md:text-2xl font-semibold text-brand-dull-white tracking-[0.06em]">
+                Your safety journey should not begin only when <span class="text-[#2DD4BF] underline decoration-2 underline-offset-4">an emergency happens.</span>
+              </p>
+              <p class="text-sm md:text-lg text-brand-dull-white/85 leading-relaxed font-light">
+                Nirbhaya helps you report incidents early, preserve private evidence, recognize connected escalation indicators, explore area safety context, and reach immediate emergency support whenever needed.
+              </p>
+            </div>
+          </div>
+
+          <!-- Core Safety Journey Interactive Pills -->
+          <div class="mt-7 flex flex-wrap items-center justify-center gap-2 max-w-4xl mx-auto">
+            <button onclick="openAppScreen('report')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">1. Report</button>
+            <span class="text-[#8a4a3b] font-bold">→</span>
+            <button onclick="openAppScreen('evidence')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">2. Preserve</button>
+            <span class="text-[#8a4a3b] font-bold">→</span>
+            <button onclick="openAppScreen('timeline')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">3. Connect</button>
+            <span class="text-[#8a4a3b] font-bold">→</span>
+            <button onclick="openAppScreen('intelligence')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">4. Analyse</button>
+            <span class="text-[#8a4a3b] font-bold">→</span>
+            <button onclick="openAppScreen('navigator')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">5. Respond</button>
+            <span class="text-[#8a4a3b] font-bold">→</span>
+            <button onclick="openAppScreen('cases')" class="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-[#ff0440] text-xs font-bold uppercase tracking-wider text-white border border-white/15 transition-all">6. Follow-Up</button>
+          </div>
+
+          <!-- Primary Hero CTAs (Exact safetyforwomen.org button styling) -->
+          <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button onclick="requestStartedAccess()" class="w-3/4 sm:w-auto text-white px-7 py-3 md:px-9 md:py-3.5 rounded-3xl text-base md:text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 shadow-[0_0_30px_rgba(255,4,64,0.45)] bg-gradient-to-r from-red-600 to-[#FF0440] hover:from-red-700 hover:to-[#d90338]">
+              Get Started — Open Safety Dashboard
+            </button>
+            <a href="#initiatives" class="w-3/4 sm:w-auto bg-transparent text-[#FF0440] border border-[#FF0440] px-7 py-3 md:px-9 md:py-3.5 rounded-3xl text-base md:text-lg font-semibold hover:bg-[#FF0440] hover:text-white transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md">
+              Explore Safety Features
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- STICKY SCROLL-STACKING INITIATIVES SECTION (safetyforwomen.org `T`) -->
+    <!-- =================================================================== -->
+    <section id="initiatives" class="relative pb-24 sm:pb-32 scroll-mt-20" style="background-color: #0a0a0a;">
+      <!-- Sticky Section Header -->
+      <div class="sticky top-16 sm:top-20 z-20 w-full py-5" style="background: linear-gradient(to bottom, #000000 72%, rgba(0, 0, 0, 0) 100%);">
+        <div class="container mx-auto px-4 md:px-8">
+          <h2 class="text-3xl md:text-5xl font-bold text-center">
+            <span style="color: #e1d5d5;">Core Safety</span>
+            <span style="color: #ff0440;"> Architecture & Pillars</span>
+          </h2>
+          <p class="mt-3 max-w-3xl mx-auto text-sm md:text-lg text-[#e1d5d5]/80 text-center">
+            Tap any pillar card below to inspect how Nirbhaya connects early incident reporting, private evidence preservation, escalation pattern detection, and emergency response.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sticky Stacking Pill Cards Container -->
+      <div id="initiativesStackContainer" class="container mx-auto px-4 md:px-8 space-y-6 pt-4">
+        <!-- Populated dynamically by renderLandingInitiatives() -->
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 14-ROW ALTERNATING MARQUEE SAFETY PLEDGE SECTION (`k` Component)    -->
+    <!-- =================================================================== -->
+    <section id="pledgeSection" class="relative h-[145vh] w-full bg-black">
+      <div class="sticky top-0 h-screen w-full overflow-hidden bg-cover bg-center bg-no-repeat flex items-center justify-center"
+           style="background-image: radial-gradient(circle at center, rgba(255, 245, 245, 0.94) 0%, rgba(225, 213, 213, 0.90) 60%, rgba(138, 74, 59, 0.85) 100%);">
+        <!-- 14 Alternating Marquee Rows -->
+        <div id="pledgeRowsBackdrop" class="absolute inset-0 flex flex-col w-full h-full opacity-25 pointer-events-none select-none transition-transform duration-300">
+          <!-- Populated via JS -->
+        </div>
+
+        <!-- Center Overlay Callout -->
+        <div class="relative z-20 text-center text-black max-w-3xl px-6 py-10 rounded-[36px] bg-white/80 backdrop-blur-md border border-black/15 shadow-2xl">
+          <span class="inline-block px-4 py-1 rounded-full bg-[#ff0440] text-white text-xs font-bold uppercase tracking-widest mb-4">
+            Prevent • Respond • Preserve • Act
+          </span>
+          <h2 class="text-3xl sm:text-5xl md:text-6xl font-extrabold leading-tight text-black">
+            Let’s Act for Women’s <br class="hidden sm:block" />Safety. Together.
+          </h2>
+          <p class="text-base sm:text-xl mt-4 text-neutral-800 max-w-xl mx-auto">
+            Don’t wait for an emergency to understand the danger. Record incidents early, preserve private evidence, and keep your trusted circle connected.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <button onclick="openAppScreen('dashboard')" class="py-3.5 px-9 rounded-full border border-black bg-black text-white text-base sm:text-lg font-semibold transition-transform transform hover:scale-105 shadow-lg">
+              Launch Safety Workspace
+            </button>
+            <button onclick="openAppScreen('report')" class="py-3.5 px-8 rounded-full border-2 border-[#ff0440] text-[#ff0440] hover:bg-[#ff0440] hover:text-white text-base sm:text-lg font-semibold transition-all">
+              Report an Incident
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ALIGNED WITH UN SDGs STRIP (`E` Component)                          -->
+    <!-- =================================================================== -->
+    <section class="relative py-10 lg:py-14 overflow-hidden border-t border-[#8a4a3b]/30">
+      <div class="absolute inset-0 bg-gradient-to-br from-[#1a0505] via-[#2a1212] to-black z-0"></div>
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col items-center justify-center gap-4">
+          <h2 class="text-2xl md:text-3xl font-bold tracking-wide text-center">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">ALIGNED WITH </span>
+            <span class="text-white">UN SDGs & NATIONAL SAFETY STANDARDS</span>
+          </h2>
+          <div class="w-full max-w-3xl border-t-2 border-dotted border-[#8B4513]/40 my-2"></div>
+          <div class="flex flex-wrap justify-center gap-4 sm:gap-6">
+            <div onclick="requestSDGAccess('sos')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#4C9F38]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#4C9F38]/15 border border-[#4C9F38]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#4C9F38]">SDG 03</span>
+              <i data-lucide="heart-pulse" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Good Health & Well-Being</span>
+            </div>
+            <div onclick="requestSDGAccess('navigator')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#C5192D]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#C5192D]/15 border border-[#C5192D]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#ff6b81]">SDG 04</span>
+              <i data-lucide="book-open-check" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Safety & Rights Awareness</span>
+            </div>
+            <div onclick="requestSDGAccess('intelligence')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#e5243b]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#e5243b]/15 border border-[#e5243b]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#ff0440]">SDG 05</span>
+              <i data-lucide="shield-check" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Gender Equality & Safety</span>
+            </div>
+            <div onclick="requestSDGAccess('safety-map')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#f99d26]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#f99d26]/15 border border-[#f99d26]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#f99d26]">SDG 11</span>
+              <i data-lucide="map" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Safe & Well-Lit Cities</span>
+            </div>
+            <div onclick="requestSDGAccess('evidence')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#26bde2]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#26bde2]/15 border border-[#26bde2]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#26bde2]">SDG 16</span>
+              <i data-lucide="scale" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Peace, Justice & Evidence</span>
+            </div>
+            <div onclick="requestSDGAccess('trusted-circle')" class="group w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-lg shadow-[#2DD4BF]/30 hover:scale-110 transition-all duration-500 cursor-pointer bg-[#2DD4BF]/15 border border-[#2DD4BF]/40 p-3 flex flex-col justify-between">
+              <span class="text-xs font-black text-[#2DD4BF]">SDG 17</span>
+              <i data-lucide="users" class="w-7 h-7 text-white group-hover:scale-110 transition-transform"></i>
+              <span class="text-[11px] font-bold text-white leading-tight">Community Partnerships</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- PARTNER & EMERGENCY NETWORK CLOUD (`d` LogoCloud Component)         -->
+    <!-- =================================================================== -->
+    <section class="relative w-full overflow-hidden py-12 bg-black border-t border-white/10">
+      <div class="hidden md:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+      <div class="hidden md:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+
+      <div class="relative z-20 flex flex-col items-center mb-8 px-4">
+        <h2 class="text-2xl font-semibold text-brand-red uppercase tracking-wide mb-2 text-center">
+          Emergency & Support Response Ecosystem
+        </h2>
+        <p class="text-sm sm:text-base text-brand-dull-white/80 text-center max-w-2xl">
+          Connected channels for immediate emergency response, cybercrime reporting, medical care, and verified community support.
+        </p>
+      </div>
+
+      <div class="flex w-fit animate-scroll-left hover:[animation-play-state:paused]">
+        <div id="partnerCloudTrack" class="flex items-center gap-6 px-4">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#050505] border-t border-[#8a4a3b]/30 py-10 px-4 sm:px-8 text-center text-xs sm:text-sm text-[#e1d5d5]/60">
+      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0"><img src="images/nirbhaya-logo.jpg" alt="Nirbhaya logo" class="w-full h-full object-contain" /></div>
+          <span class="font-display font-bold text-white text-base">Nirbhaya — Women’s Safety Platform</span>
+        </div>
+        <p>Prevent. Respond. Preserve. Act. • Informational & safety coordination platform.</p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- SCREEN 2: SIGN IN / CREATE ACCOUNT (Clean, Warm & Reassuring)         -->
+  <!-- ===================================================================== -->
+  <section id="view-login" class="hidden min-h-screen pt-24 pb-16 px-4 flex items-center justify-center bg-[radial-gradient(circle_at_top,rgba(255,4,64,0.16),#0a0a0a_65%)]">
+    <div class="sfw-box-card w-full max-w-md" onmousemove="trackSpotlight(event, this)">
+      <div class="sfw-box-inner p-7 sm:p-9">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-[#ff0440] flex items-center justify-center text-white shadow-[0_0_20px_rgba(255,4,64,0.4)]">
+              <i data-lucide="lock" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="authTitle" class="text-xl sm:text-2xl font-bold text-white">Welcome Back</h2>
+              <p class="text-xs text-[#e1d5d5]/60">Access your private Nirbhaya safety workspace</p>
+            </div>
+          </div>
+          <button onclick="navigateTo('landing')" class="text-xs text-[#e1d5d5]/60 hover:text-white">← Back</button>
+        </div>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+          <div id="registerNameField" class="hidden">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/80 mb-1.5">Your Name</label>
+            <input id="authNameInput" type="text" placeholder="Enter your name" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/80 mb-1.5">Email or Phone Number</label>
+            <input id="authEmailInput" type="text" required autocomplete="username" placeholder="name@example.com or +91 98765 43210" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/80 mb-1.5">Password</label>
+            <input id="authPasswordInput" type="password" required autocomplete="current-password" placeholder="Enter your password" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+          </div>
+
+          <div class="pt-2 flex flex-col gap-3">
+            <button type="submit" class="w-full py-3.5 rounded-full font-display font-bold text-sm text-white bg-gradient-to-r from-red-600 to-[#ff0440] hover:from-red-700 hover:to-[#d90338] shadow-[0_0_25px_rgba(255,4,64,0.4)] transition-all transform hover:scale-[1.01]">
+              <span id="authSubmitBtnText">Login to Safety Workspace</span>
+            </button>
+            <button type="button" onclick="toggleAuthMode()" class="w-full py-3 rounded-full font-semibold text-xs text-[#2DD4BF] border border-[#2DD4BF]/40 hover:bg-[#2DD4BF] hover:text-black transition-all">
+              <span id="authToggleBtnText">Create Account</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- AUTHENTICATED APPLICATION SHELL (Sidebar + Main Content + Bottom Nav) -->
+  <!-- ===================================================================== -->
+  <div id="view-app" class="hidden min-h-screen pt-16 sm:pt-20 pb-20 lg:pb-10 bg-[#0a0a0a]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex flex-col lg:flex-row gap-6">
+
+      <!-- Global Sidebar (Section 5 Specification) -->
+      <aside class="w-full lg:w-64 shrink-0">
+        <div class="lg:sticky lg:top-24 bg-[#0f0f0f] border border-[#8a4a3b]/30 rounded-[28px] p-4 space-y-1.5">
+          <div class="px-3 py-2 mb-2 border-b border-white/10 flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#8a4a3b]">Safety Navigation</span>
+            <span class="w-2 h-2 rounded-full bg-[#2DD4BF]"></span>
+          </div>
+
+          <button onclick="openAppScreen('dashboard')" data-nav="dashboard" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="openAppScreen('report')" data-nav="report" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="file-plus-2" class="w-4 h-4"></i>
+            <span>Report Incident</span>
+          </button>
+          <button onclick="openAppScreen('cases')" data-nav="cases" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="folder-kanban" class="w-4 h-4"></i>
+            <span>My Cases</span>
+          </button>
+          <button onclick="openAppScreen('evidence')" data-nav="evidence" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Evidence Vault</span>
+          </button>
+          <button onclick="openAppScreen('intelligence')" data-nav="intelligence" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="network" class="w-4 h-4"></i>
+            <span>Incident Intelligence</span>
+          </button>
+          <button onclick="openAppScreen('timeline')" data-nav="timeline" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="git-commit-vertical" class="w-4 h-4"></i>
+            <span>Incident Timeline</span>
+          </button>
+          <button onclick="openAppScreen('navigator')" data-nav="navigator" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="compass" class="w-4 h-4"></i>
+            <span>Action Navigator</span>
+          </button>
+          <button onclick="openAppScreen('safety-map')" data-nav="safety-map" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="map-pinned" class="w-4 h-4"></i>
+            <span>Safety Map</span>
+          </button>
+          <button onclick="openAppScreen('civic-report')" data-nav="civic-report" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="lamp-ceiling" class="w-4 h-4"></i>
+            <span>Civic Reports</span>
+          </button>
+          <button onclick="openAppScreen('trusted-circle')" data-nav="trusted-circle" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="heart-handshake" class="w-4 h-4"></i>
+            <span>Trusted Circle</span>
+          </button>
+          <button onclick="openAppScreen('settings')" data-nav="settings" class="app-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+            <span>Settings</span>
+          </button>
+
+          <div class="pt-3 mt-3 border-t border-white/10">
+            <button onclick="requestSOSAccess()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-[#ff0440] text-white font-display font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,4,64,0.45)] hover:scale-[1.02] transition-transform">
+              <i data-lucide="siren" class="w-4 h-4"></i>
+              <span>EMERGENCY SOS</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Dynamic Screen Area -->
+      <div class="flex-1 min-w-0 space-y-6">
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 3: DASHBOARD                                             -->
+        <!-- =============================================================== -->
+        <section id="screen-dashboard" class="app-screen space-y-6">
+          <!-- Greeting Banner -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#111111] border border-[#8a4a3b]/30 rounded-[28px] p-6">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Personal Safety Command</span>
+              <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Good evening, <span id="dashboardUserName" class="text-[#ff0440]">User</span></h1>
+              <p class="text-sm text-[#e1d5d5]/70 mt-0.5">Stay aware. Stay prepared.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button onclick="openAppScreen('report')" class="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm font-semibold border border-white/15 transition-all">
+                + Report Incident
+              </button>
+              <button onclick="openAppScreen('intelligence')" class="px-5 py-2.5 rounded-full bg-[#2DD4BF]/15 hover:bg-[#2DD4BF] text-[#2DD4BF] hover:text-black text-xs sm:text-sm font-semibold border border-[#2DD4BF]/40 transition-all">
+                Review Pattern
+              </button>
+            </div>
+          </div>
+
+          <!-- Dominant Emergency Card -->
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 bg-gradient-to-r from-[#1f070c] via-[#12080a] to-[#0d0d0d]">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                  <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff0440]/20 border border-[#ff0440]/40 text-[#ff0440] text-xs font-bold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-[#ff0440] animate-ping"></span>
+                    Immediate Response Ready
+                  </span>
+                  <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Need immediate help?</h2>
+                  <p class="text-sm text-[#e1d5d5]/80 max-w-xl">
+                    Activate emergency SOS to alert your Trusted Circle, share your live coordinates, and access verified emergency support channels.
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <button onclick="requestSOSAccess()" class="px-7 py-4 rounded-full bg-gradient-to-r from-red-600 to-[#ff0440] hover:from-red-700 hover:to-[#d90338] text-white font-display font-black text-base tracking-wide shadow-[0_0_30px_rgba(255,4,64,0.65)] hover:scale-105 active:scale-95 transition-all">
+                    ACTIVATE SOS
+                  </button>
+                  <button onclick="triggerQuickLocationShare()" class="px-5 py-3.5 rounded-full bg-black/70 hover:bg-white/10 text-white text-xs sm:text-sm font-semibold border border-[#8a4a3b]/50 transition-all">
+                    Share Location
+                  </button>
+                  <button onclick="openAppScreen('trusted-circle')" class="px-5 py-3.5 rounded-full bg-black/70 hover:bg-white/10 text-[#2DD4BF] text-xs sm:text-sm font-semibold border border-[#2DD4BF]/40 transition-all">
+                    Contact Trusted Circle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Safety Overview Metric Cards -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div onclick="openAppScreen('cases')" class="sfw-box-card cursor-pointer" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/60">Active Cases</span>
+                  <i data-lucide="folder-kanban" class="w-4 h-4 text-[#ff0440]"></i>
+                </div>
+                <p id="metricActiveCases" class="text-3xl sm:text-4xl font-extrabold text-white mt-3">2</p>
+                <span class="text-[11px] text-[#2DD4BF] mt-1 inline-block">View organized cases →</span>
+              </div>
+            </div>
+
+            <div onclick="openAppScreen('evidence')" class="sfw-box-card cursor-pointer" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/60">Evidence Items</span>
+                  <i data-lucide="file-check-2" class="w-4 h-4 text-[#2DD4BF]"></i>
+                </div>
+                <p id="metricEvidenceCount" class="text-3xl sm:text-4xl font-extrabold text-white mt-3">8</p>
+                <span class="text-[11px] text-[#e1d5d5]/60 mt-1 inline-block">Private account vault →</span>
+              </div>
+            </div>
+
+            <div onclick="openAppScreen('intelligence')" class="sfw-box-card cursor-pointer" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/60">Escalation Indicators</span>
+                  <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <p id="metricIndicatorsCount" class="text-3xl sm:text-4xl font-extrabold text-amber-400 mt-3">3</p>
+                <span class="text-[11px] text-amber-300/80 mt-1 inline-block">Moderate pattern found →</span>
+              </div>
+            </div>
+
+            <div onclick="openAppScreen('trusted-circle')" class="sfw-box-card cursor-pointer" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-[#e1d5d5]/60">Trusted Contacts</span>
+                  <i data-lucide="users" class="w-4 h-4 text-[#2DD4BF]"></i>
+                </div>
+                <p id="metricTrustedCount" class="text-3xl sm:text-4xl font-extrabold text-white mt-3">4</p>
+                <span class="text-[11px] text-[#2DD4BF] mt-1 inline-block">All contacts available →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two-Column Recent Incidents + Safety Insight -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Recent Incidents -->
+            <div class="lg:col-span-7 sfw-box-card" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-6 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 class="text-lg sm:text-xl font-bold text-white">Recent Incidents</h3>
+                      <p class="text-xs text-[#e1d5d5]/60">Chronological log of your reported safety events</p>
+                    </div>
+                    <button onclick="openAppScreen('timeline')" class="px-4 py-1.5 rounded-full border border-[#2DD4BF] text-[#2DD4BF] hover:bg-[#2DD4BF] hover:text-black text-xs font-semibold transition-all">
+                      View Timeline
+                    </button>
+                  </div>
+                  <div id="dashboardRecentIncidentsList" class="space-y-3">
+                    <!-- Populated via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Safety Insight Card (Rule 3, 4, 5 Compliant) -->
+            <div class="lg:col-span-5 sfw-box-card" onmousemove="trackSpotlight(event, this)">
+              <div class="sfw-box-inner p-6 bg-gradient-to-b from-[#1a120b] to-[#0d0d0d] flex flex-col justify-between">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold uppercase tracking-wider">
+                      Safety Insight • Moderate
+                    </span>
+                    <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+                  </div>
+
+                  <h3 class="text-xl font-bold text-white">3 related incidents detected</h3>
+                  <p class="text-sm text-[#e1d5d5]/85 leading-relaxed">
+                    Some recent reports contain repeated-contact indicators. Review your incident timeline to understand the pattern.
+                  </p>
+
+                  <!-- Rule 5: Always explain why something is shown -->
+                  <div class="p-4 rounded-2xl bg-black/60 border border-[#8a4a3b]/35 space-y-2">
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#a84f3b]">Why am I seeing this warning?</p>
+                    <ul class="text-xs text-[#e1d5d5]/85 space-y-1.5 list-disc pl-4 marker:text-[#ff0440]">
+                      <li>3 related incidents reported within 8 days</li>
+                      <li>2 different social accounts referencing similar details</li>
+                      <li>Increasing contact frequency & offline route overlap</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="pt-5 flex flex-wrap gap-3">
+                  <button onclick="openAppScreen('intelligence')" class="w-full py-3 rounded-full bg-[#ff0440] hover:bg-[#d90338] text-white font-semibold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(255,4,64,0.35)]">
+                    Review Pattern in Incident Intelligence →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 4: REPORT INCIDENT                                       -->
+        <!-- =============================================================== -->
+        <section id="screen-report" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8">
+              <div class="mb-6">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#ff0440]">Step 1 • Safety Journey</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Report an Incident</h1>
+                <p class="text-sm text-[#e1d5d5]/70">Record what happened. You can add evidence now or later.</p>
+              </div>
+
+              <form id="reportIncidentForm" onsubmit="handleSaveIncident(event)" class="space-y-6">
+                <!-- Incident Type Selector Pills -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-3">Select Incident Type</label>
+                  <div id="incidentTypeSelector" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <button type="button" onclick="selectIncidentType('Harassment', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-[#ff0440] bg-[#ff0440]/20 text-white text-xs font-semibold text-left">Harassment</button>
+                    <button type="button" onclick="selectIncidentType('Stalking', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Stalking</button>
+                    <button type="button" onclick="selectIncidentType('Threat', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Threat</button>
+                    <button type="button" onclick="selectIncidentType('Cyber Harassment', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Cyber Harassment</button>
+                    <button type="button" onclick="selectIncidentType('Suspicious Contact', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Suspicious Contact</button>
+                    <button type="button" onclick="selectIncidentType('Physical Safety Incident', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Physical Safety Incident</button>
+                    <button type="button" onclick="selectIncidentType('Other', this)" class="incident-type-pill px-4 py-3 rounded-2xl border border-white/15 bg-black text-[#e1d5d5] text-xs font-semibold text-left hover:border-[#8a4a3b]">Other</button>
+                  </div>
+                  <input type="hidden" id="incTypeValue" value="Harassment" />
+                </div>
+
+                <!-- What happened -->
+                <div>
+                  <label for="incDescription" class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-2">What happened?</label>
+                  <textarea id="incDescription" required rows="3" placeholder="Describe what happened in your own words..." class="w-full p-4 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none"></textarea>
+                </div>
+
+                <!-- Date, Time, Location, Platform -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-[#e1d5d5]/80 mb-1.5">Date</label>
+                    <input id="incDate" type="date" required value="2026-10-21" class="w-full px-4 py-2.5 rounded-xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-[#e1d5d5]/80 mb-1.5">Time</label>
+                    <input id="incTime" type="time" required value="19:30" class="w-full px-4 py-2.5 rounded-xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-[#e1d5d5]/80 mb-1.5">Location</label>
+                    <input id="incLocation" type="text" required placeholder="e.g., Rajiv Chowk / Online" class="w-full px-4 py-2.5 rounded-xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-[#e1d5d5]/80 mb-1.5">Platform / Channel</label>
+                    <input id="incPlatform" type="text" placeholder="Instagram, WhatsApp, Offline..." class="w-full px-4 py-2.5 rounded-xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                  </div>
+                </div>
+
+                <!-- Optional Notes -->
+                <div>
+                  <label class="block text-xs font-semibold text-[#e1d5d5]/80 mb-1.5">Optional Notes</label>
+                  <input id="incNotes" type="text" placeholder="Any account handles, witnesses, or recurring details..." class="w-full px-4 py-2.5 rounded-xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                </div>
+
+                <!-- Drag & Drop Evidence Area -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-2">Attach Evidence (Optional)</label>
+                  <label for="incEvidenceFile" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#8a4a3b]/50 hover:border-[#ff0440] rounded-2xl bg-black/50 cursor-pointer transition-colors text-center">
+                    <i data-lucide="upload-cloud" class="w-8 h-8 text-[#ff0440] mb-2"></i>
+                    <span class="text-sm font-semibold text-white">Drag & drop evidence here</span>
+                    <span class="text-xs text-[#e1d5d5]/60 mt-1">Supported: Screenshot, Image, Video, Audio, Document</span>
+                    <input id="incEvidenceFile" type="file" multiple class="hidden" onchange="previewSelectedEvidence(this)" />
+                    <span id="incSelectedFileLabel" class="mt-2 text-xs font-semibold text-[#2DD4BF]"></span>
+                  </label>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4 pt-2">
+                  <button type="submit" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-[#ff0440] text-white font-display font-bold text-sm shadow-[0_0_25px_rgba(255,4,64,0.4)] hover:scale-105 transition-transform">
+                    Save Incident
+                  </button>
+                  <button type="button" onclick="openAppScreen('dashboard')" class="px-6 py-3 rounded-full border border-white/15 text-xs sm:text-sm text-[#e1d5d5] hover:bg-white/5">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+
+              <!-- Confirmation Banner After Submission -->
+              <div id="incidentSavedBanner" class="hidden mt-6 p-6 rounded-2xl bg-[#2DD4BF]/10 border border-[#2DD4BF] space-y-4">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="check-circle-2" class="w-6 h-6 text-[#2DD4BF]"></i>
+                  <div>
+                    <h4 class="text-base font-bold text-white">Incident saved successfully.</h4>
+                    <p class="text-xs text-[#e1d5d5]/80">Your report has been added to your chronological timeline and linked for pattern analysis.</p>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  <button onclick="openAppScreen('timeline')" class="px-5 py-2 rounded-full bg-[#2DD4BF] text-black font-bold text-xs">View Timeline</button>
+                  <button onclick="openAppScreen('evidence')" class="px-5 py-2 rounded-full border border-[#2DD4BF] text-[#2DD4BF] font-bold text-xs">Add Evidence</button>
+                  <button onclick="openAppScreen('dashboard')" class="px-5 py-2 rounded-full border border-white/20 text-white font-bold text-xs">Go to Dashboard</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 5: INCIDENT INTELLIGENCE                                 -->
+        <!-- =============================================================== -->
+        <section id="screen-intelligence" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Pattern & Escalation Analysis</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Incident Intelligence</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">Understand whether separate incidents may be connected.</p>
+                </div>
+                <span class="px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-bold uppercase tracking-wider self-start">
+                  Severity: Moderate
+                </span>
+              </div>
+
+              <!-- Pattern Card (Strict Wording per Section 10 & 29) -->
+              <div class="p-6 rounded-3xl bg-gradient-to-br from-[#1f1212] via-[#120d0d] to-black border border-[#ff0440]/35 space-y-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#ff0440]/20 border border-[#ff0440] flex items-center justify-center text-[#ff0440]">
+                    <i data-lucide="git-compare" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-white">Escalation indicators detected</h2>
+                    <p class="text-xs sm:text-sm text-[#e1d5d5]/85">These reported incidents contain escalation indicators.</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                  <div class="p-3.5 rounded-2xl bg-black/70 border border-[#8a4a3b]/40">
+                    <span class="text-xs font-bold text-[#ff0440] uppercase">Indicator 01</span>
+                    <p class="text-sm font-semibold text-white mt-1">Repeated unwanted contact</p>
+                  </div>
+                  <div class="p-3.5 rounded-2xl bg-black/70 border border-[#8a4a3b]/40">
+                    <span class="text-xs font-bold text-[#ff0440] uppercase">Indicator 02</span>
+                    <p class="text-sm font-semibold text-white mt-1">Multiple accounts involved</p>
+                  </div>
+                  <div class="p-3.5 rounded-2xl bg-black/70 border border-[#8a4a3b]/40">
+                    <span class="text-xs font-bold text-[#ff0440] uppercase">Indicator 03</span>
+                    <p class="text-sm font-semibold text-white mt-1">Increasing frequency</p>
+                  </div>
+                  <div class="p-3.5 rounded-2xl bg-black/70 border border-[#8a4a3b]/40">
+                    <span class="text-xs font-bold text-[#ff0440] uppercase">Indicator 04</span>
+                    <p class="text-sm font-semibold text-white mt-1">Personal information referenced</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connected Incident Chain -->
+              <div>
+                <h3 class="text-base font-bold uppercase tracking-wider text-[#a84f3b] mb-4">Connected Incidents Chain</h3>
+                <div id="intelligenceChainContainer" class="space-y-2">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+
+              <div class="pt-2 flex flex-wrap gap-3">
+                <button onclick="openAppScreen('navigator')" class="px-7 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-[#ff0440] text-white font-display font-bold text-sm shadow-[0_0_25px_rgba(255,4,64,0.4)] hover:scale-105 transition-transform">
+                  View Recommended Actions →
+                </button>
+                <button onclick="openAppScreen('timeline')" class="px-6 py-3.5 rounded-full border border-[#2DD4BF] text-[#2DD4BF] hover:bg-[#2DD4BF] hover:text-black font-semibold text-xs sm:text-sm transition-all">
+                  Open Full Timeline
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 6: EVIDENCE VAULT                                        -->
+        <!-- =============================================================== -->
+        <section id="screen-evidence" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Step 2 • Preserve</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Evidence Vault</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">Keep important evidence organized and connected to your incidents.</p>
+                </div>
+                <button onclick="openAddEvidenceModal()" class="px-5 py-2.5 rounded-full bg-[#ff0440] hover:bg-[#d90338] text-white text-xs sm:text-sm font-bold shadow-[0_0_20px_rgba(255,4,64,0.4)] transition-all">
+                  + Upload Evidence
+                </button>
+              </div>
+
+              <!-- Security & Privacy Note (Section 11 Compliant) -->
+              <div class="p-4 rounded-2xl bg-[#141414] border border-[#2DD4BF]/35 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <i data-lucide="shield" class="w-5 h-5 text-[#2DD4BF] shrink-0"></i>
+                  <p class="text-xs sm:text-sm text-[#e1d5d5]">
+                    <strong>Privacy Notice:</strong> Your evidence is private and accessible only through your account.
+                  </p>
+                </div>
+                <span class="text-[11px] font-semibold px-3 py-1 rounded-full bg-[#2DD4BF]/15 text-[#2DD4BF] shrink-0">Account-Scoped Storage</span>
+              </div>
+
+              <!-- Category Filters -->
+              <div class="flex flex-wrap gap-2">
+                <button onclick="filterEvidence('All')" class="evidence-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-[#ff0440] text-white">All</button>
+                <button onclick="filterEvidence('Images')" class="evidence-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-[#e1d5d5] hover:bg-white/10">Images</button>
+                <button onclick="filterEvidence('Videos')" class="evidence-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-[#e1d5d5] hover:bg-white/10">Videos</button>
+                <button onclick="filterEvidence('Audio')" class="evidence-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-[#e1d5d5] hover:bg-white/10">Audio</button>
+                <button onclick="filterEvidence('Documents')" class="evidence-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white/5 text-[#e1d5d5] hover:bg-white/10">Documents</button>
+              </div>
+
+              <!-- Evidence Cards Grid -->
+              <div id="evidenceVaultGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 7: INCIDENT TIMELINE                                     -->
+        <!-- =============================================================== -->
+        <section id="screen-timeline" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#ff0440]">Step 3 • Connect</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Incident Timeline</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">See your reported incidents in chronological order.</p>
+                </div>
+                <div class="px-4 py-2 rounded-full bg-[#ff0440]/20 border border-[#ff0440] text-white text-xs font-bold">
+                  <span id="timelineConnectedCount">4</span> incidents connected
+                </div>
+              </div>
+
+              <div id="verticalTimelineList" class="relative pl-6 border-l-2 border-dotted border-[#8a4a3b] space-y-6">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 8: SMART ACTION NAVIGATOR                                -->
+        <!-- =============================================================== -->
+        <section id="screen-navigator" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Step 5 • Respond</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">What should I do next?</h1>
+                <p class="text-sm text-[#e1d5d5]/80 mt-1">Based on the information you reported, here are possible next steps.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-5 rounded-3xl bg-gradient-to-br from-[#29070e] to-black border border-[#ff0440]/50 flex flex-col justify-between gap-4">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-[#ff0440]">If immediate danger</span>
+                    <h3 class="text-lg font-bold text-white mt-1">Use SOS</h3>
+                    <p class="text-xs text-[#e1d5d5]/75 mt-1">Trigger an immediate alert to your Trusted Circle and share your live emergency coordinates.</p>
+                  </div>
+                  <button onclick="requestSOSAccess()" class="w-fit px-5 py-2.5 rounded-full bg-[#ff0440] text-white text-xs font-bold">Open SOS Screen →</button>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-[#121212] border border-[#8a4a3b]/40 flex flex-col justify-between gap-4">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-[#2DD4BF]">If you feel unsafe but there is no immediate emergency</span>
+                    <h3 class="text-lg font-bold text-white mt-1">Contact a trusted person</h3>
+                    <p class="text-xs text-[#e1d5d5]/75 mt-1">Notify Aditi Sharma or Rahul Mehta from your Trusted Circle so someone knows your current route.</p>
+                  </div>
+                  <button onclick="openAppScreen('trusted-circle')" class="w-fit px-5 py-2.5 rounded-full border border-[#2DD4BF] text-[#2DD4BF] hover:bg-[#2DD4BF] hover:text-black text-xs font-bold transition-all">Notify Trusted Circle →</button>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-[#121212] border border-[#8a4a3b]/40 flex flex-col justify-between gap-4">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-amber-400">If the incident involves cyber harassment</span>
+                    <h3 class="text-lg font-bold text-white mt-1">Consider reporting through the appropriate cybercrime channel</h3>
+                    <p class="text-xs text-[#e1d5d5]/75 mt-1">Keep your screenshots and account URLs organized in your Evidence Vault for official cyber portal submission (1930).</p>
+                  </div>
+                  <button onclick="openAppScreen('evidence')" class="w-fit px-5 py-2.5 rounded-full border border-white/20 text-white text-xs font-bold hover:bg-white/10">Review Preserved Evidence →</button>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-[#121212] border border-[#8a4a3b]/40 flex flex-col justify-between gap-4">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-[#ff0440]">If physical danger is immediate</span>
+                    <h3 class="text-lg font-bold text-white mt-1">Contact emergency services</h3>
+                    <p class="text-xs text-[#e1d5d5]/75 mt-1">Connect with 112 Emergency Response or view nearby police stations and hospitals on the Safety Map.</p>
+                  </div>
+                  <button onclick="openAppScreen('safety-map')" class="w-fit px-5 py-2.5 rounded-full border border-white/20 text-white text-xs font-bold hover:bg-white/10">Locate Nearby Help →</button>
+                </div>
+
+                <div class="md:col-span-2 p-5 rounded-3xl bg-[#121212] border border-[#8a4a3b]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-[#2DD4BF]">If you need support</span>
+                    <h3 class="text-lg font-bold text-white mt-1">Explore women’s support services</h3>
+                    <p class="text-xs text-[#e1d5d5]/75 mt-1">Access verified counselling, Women Helpline (181), and organized case follow-up tools.</p>
+                  </div>
+                  <button onclick="openAppScreen('case-detail')" class="shrink-0 px-6 py-2.5 rounded-full bg-[#2DD4BF] text-black text-xs font-bold">Open Case Follow-Up →</button>
+                </div>
+              </div>
+
+              <!-- Mandatory Disclaimer (Section 13) -->
+              <div class="p-4 rounded-2xl bg-black border border-white/10 text-xs text-[#e1d5d5]/70">
+                This guidance is informational and does not replace emergency services, legal advice or professional support.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 9: SOS (Ultra-Simple, High Clarity Emergency Screen)     -->
+        <!-- =============================================================== -->
+        <section id="screen-sos" class="app-screen hidden space-y-6">
+          <div class="rounded-[34px] bg-gradient-to-b from-[#29050d] via-[#120408] to-black border-2 border-[#ff0440] p-6 sm:p-10 text-center space-y-8 shadow-[0_0_60px_rgba(255,4,64,0.35)]">
+            <div class="space-y-2">
+              <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#ff0440]/25 text-[#ff0440] text-xs font-bold uppercase tracking-widest border border-[#ff0440]/50">
+                Emergency Assistance Mode
+              </span>
+              <h1 class="text-3xl sm:text-5xl font-black text-white">Are you in immediate danger?</h1>
+              <p class="text-sm sm:text-base text-[#e1d5d5]/80 max-w-xl mx-auto">
+                Press the button below to notify your Trusted Circle, share your live coordinates, and surface emergency response numbers.
+              </p>
+            </div>
+
+            <!-- Dominant Red SOS Trigger -->
+            <div class="py-2">
+              <button id="sosMainTriggerBtn" onclick="triggerSOSFlow()" class="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-gradient-to-br from-red-600 to-[#ff0440] hover:from-red-700 hover:to-[#d90338] text-white font-display font-black text-2xl sm:text-3xl tracking-wider shadow-[0_0_70px_rgba(255,4,64,0.85)] border-4 border-white/30 flex flex-col items-center justify-center mx-auto gap-2 transform hover:scale-105 active:scale-95 transition-all">
+                <i data-lucide="siren" class="w-12 h-12"></i>
+                <span>ACTIVATE SOS</span>
+              </button>
+            </div>
+
+            <!-- 3 Direct Supporting Emergency Actions -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+              <button onclick="triggerSOSFlow('contacts')" class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="bell-ring" class="w-4 h-4 text-[#ff0440]"></i> Alert Trusted Contacts
+              </button>
+              <button onclick="triggerSOSFlow('location')" class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="locate-fixed" class="w-4 h-4 text-[#2DD4BF]"></i> Share Emergency Location
+              </button>
+              <button onclick="triggerSOSFlow('support')" class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-2">
+                <i data-lucide="phone-call" class="w-4 h-4 text-amber-400"></i> Emergency Support (112)
+              </button>
+            </div>
+
+            <!-- Confirmation Flow Container -->
+            <div id="sosConfirmationPanel" class="hidden max-w-xl mx-auto p-6 rounded-3xl bg-black/90 border border-[#2DD4BF] text-left space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-[#2DD4BF] flex items-center gap-2">
+                  <i data-lucide="shield-check" class="w-6 h-6"></i> SOS Activated
+                </h3>
+                <span id="sosDispatchBadge" class="px-3 py-1 rounded-full bg-[#2DD4BF]/20 text-[#2DD4BF] text-xs font-bold">Confirmed</span>
+              </div>
+              <ul class="space-y-2 text-sm text-white">
+                <li class="flex items-center gap-2"><span class="text-[#2DD4BF] font-bold">✓</span> Trusted contacts alerted (Aditi Sharma, Rahul Mehta)</li>
+                <li class="flex items-center gap-2"><span class="text-[#2DD4BF] font-bold">✓</span> Emergency location shared (Connaught Place, New Delhi)</li>
+                <li class="flex items-center gap-2"><span class="text-[#2DD4BF] font-bold">✓</span> Emergency support options available (112 / 181 / 1091)</li>
+              </ul>
+              <div class="pt-2 flex flex-wrap gap-3">
+                <button onclick="resetSOSFlow()" class="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-white">Stand Down / Reset</button>
+                <button onclick="openAppScreen('trusted-circle')" class="px-5 py-2 rounded-full bg-[#2DD4BF] text-black text-xs font-bold">View Trusted Circle Status</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 10: TRUSTED CIRCLE                                       -->
+        <!-- =============================================================== -->
+        <section id="screen-trusted-circle" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Emergency Support Network</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Trusted Circle</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">People you choose to notify when you need support.</p>
+                </div>
+                <button onclick="openTrustedContactModal()" class="px-5 py-2.5 rounded-full bg-[#ff0440] hover:bg-[#d90338] text-white text-xs sm:text-sm font-bold shadow-[0_0_20px_rgba(255,4,64,0.4)]">
+                  + Add Contact
+                </button>
+              </div>
+
+              <div id="trustedContactsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 11: SAFETY MAP (Leaflet + OpenStreetMap)                 -->
+        <!-- =============================================================== -->
+        <section id="screen-safety-map" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Spatial Context & Infrastructure</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Area Safety</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">Explore available safety context around an area.</p>
+                </div>
+                <button onclick="openAppScreen('civic-report')" class="px-5 py-2.5 rounded-full bg-[#ff0440] text-white text-xs sm:text-sm font-bold">
+                  + Report a Local Safety Issue
+                </button>
+              </div>
+
+              <!-- Area Switcher Pills -->
+              <div class="flex flex-wrap gap-2">
+                <button onclick="selectMapArea('cp')" class="px-4 py-2 rounded-full bg-[#ff0440] text-white text-xs font-bold">Connaught Place</button>
+                <button onclick="selectMapArea('hk')" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-[#e1d5d5] text-xs font-bold">Hauz Khas Village</button>
+                <button onclick="selectMapArea('du')" class="px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-[#e1d5d5] text-xs font-bold">North Campus</button>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Leaflet Map Box -->
+                <div class="lg:col-span-8 rounded-3xl overflow-hidden border border-[#8a4a3b]/40 h-[380px] sm:h-[440px] relative z-10">
+                  <div id="leafletSafetyMap" class="w-full h-full"></div>
+                </div>
+
+                <!-- Safety Context Card (Section 16 Wording) -->
+                <div class="lg:col-span-4 p-6 rounded-3xl bg-black border border-[#8a4a3b]/40 space-y-4">
+                  <div class="flex items-center justify-between">
+                    <h3 id="mapAreaTitle" class="text-xl font-bold text-white">Connaught Place</h3>
+                    <span id="mapAreaContextBadge" class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold">
+                      Safety Context: Moderate
+                    </span>
+                  </div>
+
+                  <p class="text-xs font-bold uppercase tracking-wider text-[#a84f3b]">Available Indicators</p>
+                  <div class="space-y-2.5 text-sm">
+                    <div class="flex justify-between p-2.5 rounded-xl bg-white/5">
+                      <span class="text-[#e1d5d5]/80">Reported incidents</span>
+                      <span id="mapStatIncidents" class="font-bold text-white">12</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 rounded-xl bg-white/5">
+                      <span class="text-[#e1d5d5]/80">Street-light complaints</span>
+                      <span id="mapStatLights" class="font-bold text-amber-400">3</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 rounded-xl bg-white/5">
+                      <span class="text-[#e1d5d5]/80">Nearby police stations</span>
+                      <span id="mapStatPolice" class="font-bold text-[#2DD4BF]">2</span>
+                    </div>
+                    <div class="flex justify-between p-2.5 rounded-xl bg-white/5">
+                      <span class="text-[#e1d5d5]/80">Nearby hospitals</span>
+                      <span id="mapStatHospitals" class="font-bold text-[#2DD4BF]">4</span>
+                    </div>
+                  </div>
+
+                  <div class="p-3.5 rounded-2xl bg-white/5 text-[11px] text-[#e1d5d5]/70 leading-relaxed">
+                    Safety indicators are based on available data and user reports and may not represent the complete real-world situation.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 12: CIVIC SAFETY REPORTING                               -->
+        <!-- =============================================================== -->
+        <section id="screen-civic-report" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Safe & Well-Lit Communities</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">Report a Local Safety Issue</h1>
+                <p class="text-sm text-[#e1d5d5]/70">Help improve public infrastructure by flagging broken street lights, isolated stretches, or CCTV issues.</p>
+              </div>
+
+              <form id="civicReportForm" onsubmit="handleCivicReportSubmit(event)" class="space-y-5">
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-2">Issue Category</label>
+                  <select id="civicCategory" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none">
+                    <option value="Broken Street Light">Broken Street Light</option>
+                    <option value="Dark / Isolated Area">Dark / Isolated Area</option>
+                    <option value="CCTV / Infrastructure Issue">CCTV / Infrastructure Issue</option>
+                    <option value="Broken Road / Footpath">Broken Road / Footpath</option>
+                    <option value="Unsafe Public Place">Unsafe Public Place</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-2">Location</label>
+                  <input id="civicLocation" type="text" required value="Outer Circle, Connaught Place Block M" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-[#a84f3b] mb-2">Description</label>
+                  <textarea id="civicDescription" required rows="3" placeholder="Describe the infrastructure or lighting hazard..." class="w-full p-4 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm focus:border-[#ff0440] focus:outline-none"></textarea>
+                </div>
+
+                <button type="submit" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-red-600 to-[#ff0440] text-white font-display font-bold text-sm shadow-[0_0_25px_rgba(255,4,64,0.4)]">
+                  Submit Report
+                </button>
+              </form>
+
+              <!-- Civic Confirmation Banner -->
+              <div id="civicConfirmBox" class="hidden p-5 rounded-2xl bg-[#2DD4BF]/10 border border-[#2DD4BF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 class="text-base font-bold text-white">Community safety report submitted.</h4>
+                  <p class="text-xs text-[#e1d5d5]/80 mt-0.5">Report ID: <strong id="civicReportIdText" class="text-[#2DD4BF]">NS-1042</strong> • Status: <strong>Submitted</strong></p>
+                </div>
+                <button onclick="openAppScreen('safety-map')" class="px-4 py-2 rounded-full bg-[#2DD4BF] text-black text-xs font-bold">View on Safety Map →</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 13: MY CASES                                             -->
+        <!-- =============================================================== -->
+        <section id="screen-cases" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span class="text-xs font-bold uppercase tracking-widest text-[#2DD4BF]">Step 6 • Follow-Up & Organization</span>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">My Cases</h1>
+                  <p class="text-sm text-[#e1d5d5]/70">Organized case files connecting your incidents, evidence, and follow-up status.</p>
+                </div>
+              </div>
+
+              <div id="casesListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SCREEN 14: CASE DETAIL                                          -->
+        <!-- =============================================================== -->
+        <section id="screen-case-detail" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <span id="caseDetailCode" class="text-xs font-bold uppercase tracking-widest text-[#ff0440]">Case #NS-2026-001</span>
+                  <h1 id="caseDetailTitle" class="text-2xl sm:text-3xl font-bold text-white mt-1">Repeated Online Harassment</h1>
+                  <p id="caseDetailDesc" class="text-sm text-[#e1d5d5]/75 mt-1">Connected pattern of unwanted messages across two accounts followed by an offline encounter.</p>
+                </div>
+                <span class="px-4 py-1.5 rounded-full bg-[#2DD4BF]/20 text-[#2DD4BF] border border-[#2DD4BF]/40 text-xs font-bold">Status: Active</span>
+              </div>
+
+              <!-- Follow-Up Progress Stepper -->
+              <div class="p-5 rounded-3xl bg-black border border-[#8a4a3b]/40 space-y-3">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#a84f3b]">Follow-Up Status</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <button onclick="setFollowUpStage(0)" class="followup-step-btn p-3 rounded-2xl border border-[#2DD4BF] bg-[#2DD4BF]/15 text-left">
+                    <span class="text-[11px] font-bold text-[#2DD4BF] block">Stage 1</span>
+                    <span class="text-xs font-semibold text-white">✓ Report prepared</span>
+                  </button>
+                  <button onclick="setFollowUpStage(1)" class="followup-step-btn p-3 rounded-2xl border border-[#2DD4BF] bg-[#2DD4BF]/15 text-left">
+                    <span class="text-[11px] font-bold text-[#2DD4BF] block">Stage 2</span>
+                    <span class="text-xs font-semibold text-white">✓ Support contacted</span>
+                  </button>
+                  <button onclick="setFollowUpStage(2)" class="followup-step-btn p-3 rounded-2xl border border-amber-400 bg-amber-500/15 text-left">
+                    <span class="text-[11px] font-bold text-amber-300 block">Stage 3</span>
+                    <span class="text-xs font-semibold text-white">● Follow-up pending</span>
+                  </button>
+                  <button onclick="setFollowUpStage(3)" class="followup-step-btn p-3 rounded-2xl border border-white/15 bg-white/5 text-left">
+                    <span class="text-[11px] font-bold text-[#e1d5d5]/60 block">Stage 4</span>
+                    <span class="text-xs font-semibold text-[#e1d5d5]/80">○ Resolved</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-5 rounded-2xl bg-black/70 border border-white/10 space-y-3">
+                  <h3 class="text-sm font-bold uppercase tracking-wider text-[#a84f3b]">Connected Incidents (4)</h3>
+                  <ul class="space-y-2 text-xs sm:text-sm text-white">
+                    <li class="p-2.5 rounded-xl bg-white/5"><strong>20 Oct:</strong> Offline encounter reported</li>
+                    <li class="p-2.5 rounded-xl bg-white/5"><strong>18 Oct:</strong> Second account contacted user</li>
+                    <li class="p-2.5 rounded-xl bg-white/5"><strong>15 Oct:</strong> Repeated unwanted messages</li>
+                    <li class="p-2.5 rounded-xl bg-white/5"><strong>12 Oct:</strong> Unknown Instagram account</li>
+                  </ul>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-black/70 border border-white/10 space-y-3">
+                  <h3 class="text-sm font-bold uppercase tracking-wider text-[#a84f3b]">Detected Escalation Indicators</h3>
+                  <ul class="space-y-2 text-xs sm:text-sm text-white list-disc pl-4 marker:text-[#ff0440]">
+                    <li>Repeated contact across multiple days</li>
+                    <li>Multiple accounts involved</li>
+                    <li>Increasing message frequency</li>
+                    <li>Digital → offline transition indicator</li>
+                  </ul>
+                  <div class="pt-2 flex gap-2">
+                    <button onclick="openAppScreen('evidence')" class="px-4 py-2 rounded-full bg-white/10 text-xs font-semibold text-white">View 8 Evidence Items</button>
+                    <button onclick="openAppScreen('navigator')" class="px-4 py-2 rounded-full bg-[#ff0440] text-xs font-semibold text-white">Recommended Actions</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- SETTINGS SCREEN                                                 -->
+        <!-- =============================================================== -->
+        <section id="screen-settings" class="app-screen hidden space-y-6">
+          <div class="sfw-box-card" onmousemove="trackSpotlight(event, this)">
+            <div class="sfw-box-inner p-6 sm:p-8 space-y-6">
+              <h1 class="text-2xl sm:text-3xl font-bold text-white">Safety & Privacy Preferences</h1>
+              <div class="space-y-4">
+                <div class="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-bold text-white">Quick SOS Gesture & Persistent Header</p>
+                    <p class="text-xs text-[#e1d5d5]/60">Keep the red SOS button accessible at the top of every screen.</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full bg-[#2DD4BF]/20 text-[#2DD4BF] text-xs font-bold">Always Active</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-bold text-white">Private Evidence Vault Access</p>
+                    <p class="text-xs text-[#e1d5d5]/60">Your evidence is private and accessible only through your account.</p>
+                  </div>
+                  <span class="px-3 py-1 rounded-full bg-[#2DD4BF]/20 text-[#2DD4BF] text-xs font-bold">Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar (Section 26: Home | Cases | Map | SOS | More) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-t border-[#8a4a3b]/40 px-2 py-2 flex items-center justify-around">
+      <button onclick="openAppScreen('dashboard')" class="flex flex-col items-center gap-1 text-[11px] text-[#e1d5d5] hover:text-white">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="openAppScreen('cases')" class="flex flex-col items-center gap-1 text-[11px] text-[#e1d5d5] hover:text-white">
+        <i data-lucide="folder-kanban" class="w-4 h-4"></i>
+        <span>Cases</span>
+      </button>
+      <button onclick="requestSOSAccess()" class="px-4 py-2 rounded-full bg-[#ff0440] text-white font-display font-bold text-xs shadow-[0_0_20px_rgba(255,4,64,0.6)]">
+        SOS
+      </button>
+      <button onclick="openAppScreen('safety-map')" class="flex flex-col items-center gap-1 text-[11px] text-[#e1d5d5] hover:text-white">
+        <i data-lucide="map-pin" class="w-4 h-4"></i>
+        <span>Map</span>
+      </button>
+      <button onclick="openAppScreen('intelligence')" class="flex flex-col items-center gap-1 text-[11px] text-[#e1d5d5] hover:text-white">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+        <span>Pattern</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SPLIT-VIEW INITIATIVE MODAL (Exact `z` + `A` Component Architecture)  -->
+  <!-- ===================================================================== -->
+  <div id="initiativeModalBackdrop" onclick="closeInitiativeModal(event)" class="hidden fixed inset-0 bg-black/75 z-[100] backdrop-blur-md grid place-items-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-[1000px] h-fit max-h-[90vh] flex flex-col bg-[#0a0a0a] border border-[#ff0440]/40 rounded-[30px] sm:rounded-[40px] overflow-hidden shadow-[0_0_40px_rgba(255,4,64,0.28)] relative">
+      <!-- Close Button -->
+      <button onclick="closeInitiativeModal()" class="flex absolute top-4 right-4 items-center justify-center bg-[#8a4a3b] hover:bg-[#ff0440] text-white rounded-full h-9 w-9 z-[102] transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <!-- Dynamic Content Container -->
+      <div id="initiativeModalBody" class="overflow-y-auto p-5 md:p-7 scrollbar-hide"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ADD TRUSTED CONTACT MODAL                                             -->
+  <!-- ===================================================================== -->
+  <div id="trustedContactModal" onclick="closeTrustedContactModal()" class="hidden fixed inset-0 bg-black/75 z-[100] backdrop-blur-md grid place-items-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-[#0e0e0e] border border-[#ff0440]/40 rounded-[30px] p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-white">Add Trusted Contact</h3>
+        <button onclick="closeTrustedContactModal()" class="text-[#e1d5d5]/60 hover:text-white">✕</button>
+      </div>
+      <form onsubmit="handleAddTrustedContact(event)" class="space-y-3">
+        <input id="tcName" type="text" required placeholder="Full Name (e.g. Priya Verma)" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm" />
+        <input id="tcRelation" type="text" required placeholder="Relationship (e.g. Sister, Colleague)" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm" />
+        <input id="tcPhone" type="text" required placeholder="Phone Number (e.g. +91 98111 22334)" class="w-full px-4 py-3 rounded-2xl bg-black border border-[#8a4a3b]/40 text-white text-sm" />
+        <button type="submit" class="w-full py-3 rounded-full bg-[#ff0440] text-white font-bold text-sm">Save Contact</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST NOTIFICATION                                                    -->
+  <!-- ===================================================================== -->
+  <div id="toastBanner" class="fixed bottom-6 right-6 z-[120] hidden items-center gap-3 px-5 py-3.5 rounded-2xl bg-[#121212] border border-[#2DD4BF] text-white text-xs sm:text-sm font-semibold shadow-2xl">
+    <span class="w-2.5 h-2.5 rounded-full bg-[#2DD4BF]"></span>
+    <span id="toastMessage">Action completed</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION JAVASCRIPT & CENTRALIZED API LAYER                        -->
+  <!-- ===================================================================== -->
+  <script src="js/main.js"></script>
+</body>
+</html>
